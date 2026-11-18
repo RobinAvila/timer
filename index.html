@@ -195,6 +195,11 @@
     if (!document.hidden) { if (running) { render(); lockScreen(); } }
   });
   render();
+
+  // Permite abrir el timer sin internet después de la primera carga.
+  try {
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  } catch (e) {}
 })();
 </script>
 </body>
