@@ -97,6 +97,7 @@
   .gear { position:fixed; top:calc(env(safe-area-inset-top) + 1.2vh); right:calc(env(safe-area-inset-right) + 1.2vw); z-index:5; width:max(44px,5.4vh); height:max(44px,5.4vh);
     border-radius:50%; border:1px solid rgba(255,255,255,.3); background:rgba(4,25,70,.5); color:#fff; font-size:max(22px,3vh); opacity:.7; }
 
+  .gear.f { right:calc(env(safe-area-inset-right) + 1.2vw + max(44px,5.4vh) + 1.2vh); }
   footer { padding:0 4vw 1.4vh; text-align:center; font-size:max(13px,1.9vh); font-weight:500; line-height:1.35; }
   footer b { font-weight:700; }
   #confeti { position:fixed; inset:0; width:100%; height:100%; z-index:4; pointer-events:none; }
@@ -127,6 +128,7 @@
   </svg>
 
   <button class="gear" id="ajustes" aria-label="Mostrar u ocultar ajustes">⚙</button>
+  <button class="gear f" id="pantalla" aria-label="Pantalla completa">⛶</button>
 
   <header>
     <img src="logo-blanco.png" alt="Postgrados UAutónoma · Universidad Autónoma de Chile · Más Universidad">
@@ -302,6 +304,24 @@
   addEventListener('resize', ajustar); addEventListener('orientationchange', function () { setTimeout(ajustar, 250); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustar);
   $('ajustes').addEventListener('click', ajustar);
+
+  // Pantalla completa (botón ⛶ o tecla F). Si la página ya está instalada en la pantalla de inicio, el botón se oculta.
+  var raiz = document.documentElement, btnPant = $('pantalla');
+  var standalone = (window.navigator.standalone === true) || matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches;
+  function pantallaCompleta() {
+    try {
+      if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      else { var f = raiz.requestFullscreen || raiz.webkitRequestFullscreen; if (f) { var r = f.call(raiz); if (r && r.catch) r.catch(function () {}); } }
+    } catch (e) {}
+  }
+  if (standalone || !(raiz.requestFullscreen || raiz.webkitRequestFullscreen)) btnPant.classList.add('oculto');
+  btnPant.onclick = pantallaCompleta;
+  document.addEventListener('fullscreenchange', function () { setTimeout(ajustar, 200); });
+  document.addEventListener('webkitfullscreenchange', function () { setTimeout(ajustar, 200); });
+  addEventListener('keydown', function (e) {
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if ((e.key === 'f' || e.key === 'F') && tag !== 'INPUT') pantallaCompleta();
+  });
 
   load(); pintaHist(); ajustar();
 
