@@ -19,18 +19,23 @@
 
   :root { --cyan:#22d3ee; --cyan2:#7be8fb; --navy:#0a2a6b; --deep:#06214f; }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { background:#0b3b86; }
   html, body { margin:0; height:100%; }
   body {
     height:100vh; height:100dvh; overflow:hidden; color:#fff;
     font-family:"Montserrat", -apple-system, "Helvetica Neue", Arial, sans-serif;
     display:grid; grid-template-rows:auto minmax(0,1fr) auto; position:relative;
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  /* El fondo va en una capa fija que cubre toda la pantalla (también bajo la barra inferior del iPad) */
+  body::before {
+    content:""; position:fixed; left:-2px; top:-2px; right:-2px; bottom:-2px; z-index:-1; pointer-events:none;
     background:
       repeating-conic-gradient(from 8deg at 66% 42%, rgba(255,255,255,.055) 0 3.5deg, transparent 3.5deg 8deg),
       radial-gradient(ellipse at 66% 42%, rgba(60,150,255,.55), transparent 62%),
       linear-gradient(165deg, #0c4aa6 0%, #0a357c 48%, #06214f 100%);
   }
-  .wave { position:fixed; left:0; right:0; bottom:0; width:100%; height:13vh; z-index:0; pointer-events:none; }
+  .wave { position:fixed; left:0; right:0; bottom:-2px; width:100%; height:13vh; z-index:0; pointer-events:none; }
   header, main, footer { position:relative; z-index:1; }
 
   header { text-align:center; padding:2vh 4vw 0; }
