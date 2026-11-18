@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cuenta regresiva">
+<title>Cuenta regresiva</title>
+<style>
+  :root { --fg:#f5f7fa; --bg:#0b1020; --accent:#34d399; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    display: flex; flex-direction: column; overflow: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    transition: background .4s;
+    user-select: none; -webkit-user-select: none;
+  }
+  body.warn  { --bg:#3a2a00; --accent:#fbbf24; }
+  body.info  { --bg:#06283d; --accent:#38bdf8; }
+  body.alert { --bg:#3b0a0a; --accent:#f87171; }
+  body.pulse { animation: pulse .9s ease-in-out 6; }
+  body.pulse #time { color:#fff; }
+  @keyframes pulse { 0%,100% { background: var(--bg); } 50% { background: color-mix(in srgb, var(--accent) 60%, var(--bg)); } }
+  body.done  { animation: flash .8s steps(2, jump-none) infinite; }
+  @keyframes flash { 0%{ background:#b91c1c; } 100%{ background:#0b1020; } }
+
+  body.clean .controls, body.clean .presets, body.clean .top { visibility:hidden; }
+  .top { text-align:center; padding: 2vh 2vw 0; font-size: clamp(16px, 2.6vw, 28px); opacity:.75; letter-spacing:.08em; text-transform:uppercase; min-height: 1.4em; }
+  .clock { flex:1; display:flex; align-items:center; justify-content:center; }
+  #time {
+    font-variant-numeric: tabular-nums; font-weight: 800; line-height: 1;
+    font-size: min(29vw, 55vh); white-space: nowrap; text-align: center; width: 100%; color: var(--accent); letter-spacing: -0.02em;
+    text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .bar { height: 1.6vh; background: rgba(255,255,255,.12); margin: 0 4vw; border-radius: 99px; overflow: hidden; }
+  .bar > i { display:block; height:100%; width:100%; background: var(--accent); transform-origin:left; transition: background .4s; }
+  .controls { display:flex; gap:2vw; justify-content:center; flex-wrap:wrap; padding: 2.5vh 3vw 1.5vh; }
+  button {
+    font: inherit; font-weight: 700; font-size: clamp(20px, 3.2vw, 34px);
+    padding: 1.6vh 3.2vw; min-width: 16vw; border-radius: 18px; border: 0; color: var(--fg);
+    background: rgba(255,255,255,.14); touch-action: manipulation;
+  }
+  button:active { transform: scale(.97); background: rgba(255,255,255,.26); }
+  button.primary { background: var(--accent); color: #0b1020; min-width: 24vw; }
+  .presets { display:flex; gap:1.6vw; justify-content:center; padding: 0 3vw 2.5vh; flex-wrap:wrap; }
+  .presets button { font-size: clamp(16px, 2.4vw, 26px); min-width: 0; padding: 1.2vh 2.4vw; opacity:.85; }
+  .presets button.on { outline: 3px solid var(--accent); opacity:1; }
+</style>
+</head>
+<body>
+  <div class="top" id="msg">Toca ▶ para iniciar</div>
+  <div class="clock"><div id="time">20:00</div></div>
+  <div class="bar"><i id="fill"></i></div>
+  <div class="controls">
+    <button class="primary" id="go">▶ Iniciar</button>
+    <button id="reset">↺ Reiniciar</button>
+    <button id="plus">+1 min</button>
+    <button id="minus">−1 min</button>
+    <button id="full">⛶ Modo limpio</button>
+  </div>
+  <div class="presets" id="presets">
+    <button data-m="20" class="on">20 min</button>
+    <button data-m="15">15 min</button>
+    <button data-m="10">10 min</button>
+    <button data-m="5">5 min</button>
+  </div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var timeEl = $('time'), msg = $('msg'), fill = $('fill'), goBtn = $('go');
+  var total = 20 * 60 * 1000;      // duración configurada (ms)
+  var remaining = total;           // ms restantes
+  var endAt = 0, running = false, tick = null, finished = false, wake = null, ac = null;
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function fmt(ms) {
+    var s = Math.ceil(Math.max(ms, 0) / 1000);
+    return pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+  }
+  function setTheme(ms) {
+    var b = document.body;
+    b.classList.toggle('done', finished);
+    b.classList.toggle('alert', !finished && ms <= 120000 && ms > 0);
+    b.classList.toggle('warn', !finished && ms <= 300000 && ms > 120000);
+    b.classList.toggle('info', !finished && ms <= 600000 && ms > 300000);
+  }
+  function render() {
+    var ms = running ? Math.max(endAt - Date.now(), 0) : remaining;
+    timeEl.textContent = fmt(ms);
+    fill.style.transform = 'scaleX(' + (total ? ms / total : 0) + ')';
+    setTheme(ms);
+    if (running) checkMarks(ms);
+    if (running && ms <= 0) finish();
+  }
+  // Avisos a los 10, 5 y 2 minutos: el fondo pulsa ~6 s, suena un pitido y se muestra un mensaje.
+  var marks = [600000, 300000, 120000], fired = {};
+  function syncMarks(ms) { marks.forEach(function (m) { fired[m] = ms <= m; }); }
+  function checkMarks(ms) {
+    marks.forEach(function (m, i) {
+      if (!fired[m] && ms <= m && ms > 0) {
+        fired[m] = true;
+        msg.textContent = 'Quedan ' + (m / 60000) + ' minutos';
+        document.body.classList.remove('pulse'); void document.body.offsetWidth;
+        document.body.classList.add('pulse');
+        setTimeout(function () { document.body.classList.remove('pulse'); }, 6000);
+        beep(i + 1);
+      }
+    });
+  }
+  function beep(n) {
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      for (var i = 0; i < n; i++) {
+        var o = ac.createOscillator(), g = ac.createGain();
+        o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+        var t = ac.currentTime + i * 0.35;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.4, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+        o.start(t); o.stop(t + 0.3);
+      }
+    } catch (e) {}
+  }
+  async function lockScreen() {
+    try { if (navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); } catch (e) {}
+  }
+  function unlockScreen() { try { if (wake) wake.release(); } catch (e) {} wake = null; }
+
+  function start() {
+    if (finished) return;
+    if (remaining <= 0) return;
+    running = true; endAt = Date.now() + remaining;
+    goBtn.textContent = '❚❚ Pausar';
+    msg.textContent = 'En curso';
+    lockScreen(); beep(0);
+    clearInterval(tick); tick = setInterval(render, 200); render();
+  }
+  function pause() {
+    remaining = Math.max(endAt - Date.now(), 0);
+    running = false; clearInterval(tick); unlockScreen();
+    goBtn.textContent = '▶ Continuar'; msg.textContent = 'En pausa'; render();
+  }
+  function finish() {
+    running = false; finished = true; remaining = 0; clearInterval(tick); unlockScreen();
+    goBtn.textContent = '▶ Iniciar'; msg.textContent = '¡Tiempo cumplido!';
+    beep(5); render();
+  }
+  function reset() {
+    running = false; finished = false; clearInterval(tick); unlockScreen();
+    remaining = total; syncMarks(total); goBtn.textContent = '▶ Iniciar'; msg.textContent = 'Toca ▶ para iniciar'; render();
+  }
+  function adjust(deltaMs) {
+    var cur = running ? Math.max(endAt - Date.now(), 0) : remaining;
+    var next = Math.max(cur + deltaMs, 0);
+    if (finished && next > 0) { finished = false; goBtn.textContent = '▶ Continuar'; msg.textContent = 'En pausa'; }
+    if (running) endAt = Date.now() + next; else remaining = next;
+    if (next > total) total = next;
+    syncMarks(next);
+    render();
+  }
+
+  goBtn.onclick = function () { running ? pause() : start(); };
+  $('reset').onclick = reset;
+  $('plus').onclick = function () { adjust(60000); };
+  $('minus').onclick = function () { adjust(-60000); };
+  $('full').onclick = function () {
+    document.body.classList.add('clean');
+    try {
+      var el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen().catch(function () {});
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    } catch (e) {}
+  };
+  document.querySelector('.clock').onclick = function () {
+    if (document.body.classList.contains('clean')) {
+      document.body.classList.remove('clean');
+      try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {}
+    }
+  };
+  $('presets').onclick = function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#presets button').forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    total = parseInt(b.dataset.m, 10) * 60000;
+    reset();
+  };
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) { if (running) { render(); lockScreen(); } }
+  });
+  render();
+})();
+</script>
+</body>
+</html>
