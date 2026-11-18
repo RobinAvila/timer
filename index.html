@@ -113,6 +113,7 @@
     });
   }
   function beep(n) {
+    return; // sin sonido: solo avisos visuales
     try {
       ac = ac || new (window.AudioContext || window.webkitAudioContext)();
       if (ac.state === 'suspended') ac.resume();
