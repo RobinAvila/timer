@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sorteo">
+<meta name="theme-color" content="#06214f">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Sorteo · IV Jornada de Medicina Familiar</title>
+<style>
+  @font-face { font-family:"Montserrat"; font-weight:500; font-style:normal; font-display:swap; src:url("fonts/montserrat-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family:"Montserrat"; font-weight:500; font-style:italic; font-display:swap; src:url("fonts/montserrat-latin-500-italic.woff2") format("woff2"); }
+  @font-face { font-family:"Montserrat"; font-weight:700; font-style:normal; font-display:swap; src:url("fonts/montserrat-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family:"Montserrat"; font-weight:800; font-style:normal; font-display:swap; src:url("fonts/montserrat-latin-800-normal.woff2") format("woff2"); }
+  @font-face { font-family:"Anton"; font-weight:400; font-style:normal; font-display:swap; src:url("fonts/anton-latin-400-normal.woff2") format("woff2"); }
+
+  :root { --cyan:#22d3ee; --cyan2:#7be8fb; --navy:#0a2a6b; --deep:#06214f; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; height:100%; }
+  body {
+    height:100vh; height:100dvh; overflow:hidden; color:#fff;
+    font-family:"Montserrat", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    display:grid; grid-template-rows:auto minmax(0,1fr) auto; position:relative;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    background:
+      repeating-conic-gradient(from 8deg at 66% 42%, rgba(255,255,255,.055) 0 3.5deg, transparent 3.5deg 8deg),
+      radial-gradient(ellipse at 66% 42%, rgba(60,150,255,.55), transparent 62%),
+      linear-gradient(165deg, #0c4aa6 0%, #0a357c 48%, #06214f 100%);
+  }
+  .wave { position:fixed; left:0; right:0; bottom:0; width:100%; height:13vh; z-index:0; pointer-events:none; }
+  header, main, footer { position:relative; z-index:1; }
+
+  header { text-align:center; padding:2vh 4vw 0; }
+  header img { height:6.4vh; width:auto; display:block; margin:0 auto; }
+  h1 { margin:1.2vh 0 0; font-weight:800; font-size:3vh; letter-spacing:.03em; text-transform:uppercase; }
+  .rule { width:8vh; height:.5vh; border-radius:9px; background:var(--cyan); margin:.8vh auto .6vh; }
+  .quote { margin:0; font-style:italic; font-weight:500; font-size:2.3vh; opacity:.95; }
+
+  main { display:grid; grid-template-columns:.78fr 1.22fr; gap:3vw; align-items:center; padding:1vh 5vw; min-height:0; overflow:hidden; }
+  .premio { height:100%; min-height:0; display:flex; align-items:center; justify-content:center; }
+  .premio img { max-height:100%; max-width:100%; object-fit:contain; filter:drop-shadow(0 2.2vh 3.2vh rgba(0,0,0,.55)) drop-shadow(0 0 3vh rgba(34,211,238,.25)); transform:rotate(1.2deg); }
+
+  .sorteo { display:flex; flex-direction:column; align-items:center; gap:1.1vh; text-align:center; min-width:0; }
+  h2 {
+    margin:0; font-family:"Anton", Impact, sans-serif; font-weight:400; font-size:9vh; line-height:1; letter-spacing:.02em;
+    text-transform:uppercase; transform:skewX(-6deg);
+    background:linear-gradient(180deg,#eafcff 5%, var(--cyan2) 45%, #14b8dd 100%); -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 .6vh 0 rgba(4,40,110,.55)) drop-shadow(0 0 2.4vh rgba(34,211,238,.45));
+  }
+  .premio-txt { margin:0; font-size:2.6vh; font-weight:700; }
+  .premio-txt b { font-family:"Anton", Impact, sans-serif; font-weight:400; font-size:5.2vh; letter-spacing:.03em; margin-left:.5vw; vertical-align:-.35vh; }
+  .pill { display:inline-block; background:var(--cyan); color:var(--deep); font-weight:800; font-size:2.2vh; padding:.5vh 1.8vh; border-radius:99px; }
+
+  .num-card {
+    width:100%; max-width:86vh; height:22vh; border-radius:3.2vh; background:#fff; color:var(--navy);
+    display:flex; align-items:center; justify-content:center; overflow:hidden; margin-top:.6vh;
+    box-shadow:0 0 0 .7vh var(--cyan), 0 0 5vh rgba(34,211,238,.55), 0 2vh 4vh rgba(0,0,0,.35);
+    transition:transform .25s, box-shadow .25s;
+  }
+  #num { --fs:min(18vh,26vw); font-size:var(--fs); font-weight:800; line-height:1; font-variant-numeric:tabular-nums; letter-spacing:-.02em; white-space:nowrap; }
+  .num-card.girando { box-shadow:0 0 0 .7vh #fff, 0 0 6vh rgba(255,255,255,.55), 0 2vh 4vh rgba(0,0,0,.35); }
+  .num-card.girando #num { color:#3a6fc4; }
+  .num-card.ganador { animation:pop 1.1s ease-out 1; box-shadow:0 0 0 1vh #ffd54a, 0 0 8vh rgba(255,213,74,.8), 0 2vh 4vh rgba(0,0,0,.35); }
+  @keyframes pop { 0%{transform:scale(.9)} 35%{transform:scale(1.07)} 65%{transform:scale(.98)} 100%{transform:scale(1)} }
+
+  .estado { margin:0; min-height:3.2vh; font-size:2.6vh; font-style:italic; font-weight:500; }
+  .estado.err { color:#ffb4b4; font-style:normal; font-weight:700; }
+  .estado.ok { color:#ffe27a; font-style:normal; font-weight:800; font-size:3vh; }
+
+  button { font-family:inherit; touch-action:manipulation; cursor:pointer; }
+  .go {
+    border:0; border-radius:99px; padding:1.1vh 6vh; font-weight:800; font-size:3.6vh; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--deep); background:linear-gradient(180deg,#8cf0ff,#22d3ee 60%,#12b6dc); box-shadow:0 1vh 0 #0b7fa6, 0 0 4vh rgba(34,211,238,.55);
+    animation:latir 2.4s ease-in-out infinite;
+  }
+  .go:active { transform:translateY(.6vh); box-shadow:0 .4vh 0 #0b7fa6, 0 0 3vh rgba(34,211,238,.5); }
+  .go:disabled { animation:none; opacity:.65; cursor:default; }
+  @keyframes latir { 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.035) } }
+
+  .rango { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:1.2vh 1.6vw; margin-top:.4vh;
+    background:rgba(4,25,70,.55); border:1px solid rgba(255,255,255,.2); border-radius:2vh; padding:.7vh 1.6vw; font-size:max(15px,2vh); font-weight:700; }
+  .rango label { display:flex; align-items:center; gap:.8vw; }
+  .rango input[type=number] { width:max(110px,11vh); font:inherit; font-weight:800; font-size:max(16px,2.4vh); text-align:center; color:var(--navy); background:#fff; border:0; border-radius:1.2vh; padding:.7vh 1vh; }
+  .rango input[type=checkbox] { width:max(20px,2.6vh); height:max(20px,2.6vh); accent-color:var(--cyan); }
+  .mini { font-weight:700; font-size:max(14px,1.9vh); color:#fff; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3); border-radius:99px; padding:.7vh 1.6vh; }
+  .hist { margin:0; min-height:2.6vh; font-size:max(14px,2vh); opacity:.9; font-weight:500; }
+  .hist b { font-weight:800; color:var(--cyan2); }
+  .oculto { display:none !important; }
+
+  .gear { position:fixed; top:calc(env(safe-area-inset-top) + 1.2vh); right:calc(env(safe-area-inset-right) + 1.2vw); z-index:5; width:max(44px,5.4vh); height:max(44px,5.4vh);
+    border-radius:50%; border:1px solid rgba(255,255,255,.3); background:rgba(4,25,70,.5); color:#fff; font-size:max(22px,3vh); opacity:.7; }
+
+  footer { padding:0 4vw 1.4vh; text-align:center; font-size:max(13px,1.9vh); font-weight:500; line-height:1.35; }
+  footer b { font-weight:700; }
+  #confeti { position:fixed; inset:0; width:100%; height:100%; z-index:4; pointer-events:none; }
+
+  /* Pantallas verticales (iPad en vertical): se apila */
+  @media (max-aspect-ratio: 1/1) {
+    main { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:.8vh; padding:.5vh 5vw; }
+    .premio { height:20vh; flex:none; }
+    .premio img { height:100%; width:auto; max-height:none; }
+    .sorteo { gap:.7vh; width:100%; }
+    h2 { font-size:6.6vh; }
+    .premio-txt { font-size:2vh; } .premio-txt b { font-size:3.6vh; }
+    .pill { font-size:1.8vh; padding:.3vh 1.4vh; }
+    .num-card { height:15vh; max-width:94vw; }
+    #num { --fs:min(14vh,30vw); }
+    .estado { font-size:2.1vh; min-height:2.6vh; }
+    .go { font-size:3.3vh; padding:.9vh 5vh; }
+    .rango { padding:.5vh 2vw; gap:.5vh 2.5vw; margin-top:.2vh; }
+    .hist { min-height:0; }
+    header img { height:5vh; } h1 { font-size:2.3vh; } .quote { font-size:1.9vh; }
+  }
+</style>
+</head>
+<body>
+  <svg class="wave" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,70 C240,20 420,20 700,60 C980,100 1200,90 1440,40 L1440,160 L0,160 Z" fill="#1d6fc0" opacity=".85"/>
+    <path d="M0,105 C260,70 520,60 760,95 C1020,130 1230,125 1440,85 L1440,160 L0,160 Z" fill="#0b3b86"/>
+  </svg>
+
+  <button class="gear" id="ajustes" aria-label="Mostrar u ocultar ajustes">⚙</button>
+
+  <header>
+    <img src="logo-blanco.png" alt="Postgrados UAutónoma · Universidad Autónoma de Chile · Más Universidad">
+    <h1>IV Jornada de Medicina Familiar</h1>
+    <div class="rule"></div>
+    <p class="quote">“Sembrando salud para envejecer mejor”</p>
+  </header>
+
+  <main>
+    <section class="premio"><img src="fonendo.png" alt="Fonendoscopio Littmann Classic III Black"></section>
+
+    <section class="sorteo">
+      <h2>¡Sorteo!</h2>
+      <p class="premio-txt">Participa por un <b>FONENDOSCOPIO</b></p>
+      <span class="pill">Littmann® Classic III · Black</span>
+
+      <div class="num-card" id="card"><div id="num" aria-live="polite">?</div></div>
+      <p class="estado" id="estado">¡Podría ser tuyo!</p>
+      <button class="go" id="sortear">Sortear</button>
+
+      <div class="rango" id="rango">
+        <label>Desde <input id="min" type="number" inputmode="numeric" value="1"></label>
+        <label>Hasta <input id="max" type="number" inputmode="numeric" value="100"></label>
+        <label><input id="norep" type="checkbox" checked> No repetir</label>
+        <button class="mini" id="borrar" type="button">Borrar historial</button>
+      </div>
+      <p class="hist" id="hist"></p>
+    </section>
+  </main>
+
+  <footer><b>Viernes 20 de noviembre · 08:30 a 17:30 hrs</b> · Aula Magna Universidad Autónoma de Chile · Talca</footer>
+  <canvas id="confeti"></canvas>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var num = $('num'), card = $('card'), estado = $('estado'), btn = $('sortear');
+  var minI = $('min'), maxI = $('max'), norep = $('norep'), histEl = $('hist');
+  var historial = [], rodando = false;
+
+  // ---- almacenamiento ligero (si el navegador lo permite) ----
+  function load() {
+    try {
+      var s = JSON.parse(localStorage.getItem('sorteo-ua') || '{}');
+      if (typeof s.min === 'number') minI.value = s.min;
+      if (typeof s.max === 'number') maxI.value = s.max;
+      if (typeof s.norep === 'boolean') norep.checked = s.norep;
+      if (Array.isArray(s.hist)) historial = s.hist.filter(function (n) { return typeof n === 'number'; });
+    } catch (e) {}
+  }
+  function save() {
+    try { localStorage.setItem('sorteo-ua', JSON.stringify({ min: +minI.value, max: +maxI.value, norep: norep.checked, hist: historial })); } catch (e) {}
+  }
+
+  // ---- azar criptográfico sin sesgo ----
+  function rnd(n) {            // entero uniforme en [0, n)
+    var a = new Uint32Array(1), lim = Math.floor(4294967296 / n) * n, x;
+    do { crypto.getRandomValues(a); x = a[0]; } while (x >= lim);
+    return x % n;
+  }
+
+  function rango() {
+    var lo = parseInt(minI.value, 10), hi = parseInt(maxI.value, 10);
+    if (isNaN(lo) || isNaN(hi)) return { error: 'Escribe el número inicial y el final' };
+    if (lo > hi) return { error: 'El "Desde" no puede ser mayor que el "Hasta"' };
+    if (hi - lo + 1 > 1e9) return { error: 'El rango es demasiado grande' };
+    return { lo: lo, hi: hi };
+  }
+
+  function elegir(lo, hi) {
+    var count = hi - lo + 1;
+    if (!norep.checked) return lo + rnd(count);
+    var usados = {}, k = 0;
+    historial.forEach(function (v) { if (v >= lo && v <= hi && !usados[v]) { usados[v] = 1; k++; } });
+    if (k >= count) return null;
+    if (k * 2 < count) { var n; do { n = lo + rnd(count); } while (usados[n]); return n; }
+    var pool = []; for (var i = lo; i <= hi; i++) if (!usados[i]) pool.push(i);
+    return pool[rnd(pool.length)];
+  }
+
+  function mostrar(n) {
+    var s = String(n), L = s.length, fs;
+    if (L <= 3) fs = 'min(18vh,26vw)'; else if (L === 4) fs = 'min(15vh,22vw)'; else if (L <= 6) fs = 'min(12vh,17vw)'; else fs = 'min(8vh,12vw)';
+    num.style.setProperty('--fs', fs); num.textContent = s;
+  }
+  function msg(t, cls) { estado.textContent = t; estado.className = 'estado' + (cls ? ' ' + cls : ''); }
+  function pintaHist() {
+    if (!historial.length) { histEl.textContent = ''; return; }
+    var ult = historial.slice(-12).reverse().map(function (n) { return '<b>' + n + '</b>'; }).join(' · ');
+    histEl.innerHTML = 'Ya salieron: ' + ult;
+  }
+
+  function sortear() {
+    if (rodando) return;
+    var r = rango();
+    if (r.error) { msg(r.error, 'err'); return; }
+    var ganador = elegir(r.lo, r.hi);
+    if (ganador === null) { msg('Ya salieron todos los números del rango', 'err'); return; }
+
+    rodando = true; btn.disabled = true; save();
+    card.classList.remove('ganador'); card.classList.add('girando');
+    msg('Sorteando…');
+    var dur = 4300, t0 = performance.now(), ultimo = 0, espera = 35;
+
+    function paso(t) {
+      var el = t - t0;
+      if (el >= dur) { terminar(); return; }
+      if (t - ultimo >= espera) {
+        mostrar(r.lo + rnd(r.hi - r.lo + 1)); ultimo = t;
+        var p = el / dur; espera = 35 + p * p * p * 420;
+      }
+      requestAnimationFrame(paso);
+    }
+    function terminar() {
+      mostrar(ganador);
+      card.classList.remove('girando'); void card.offsetWidth; card.classList.add('ganador');
+      historial.push(ganador); save(); pintaHist();
+      msg('¡Número ganador!', 'ok');
+      confeti(); rodando = false; btn.disabled = false; btn.textContent = 'Sortear de nuevo';
+    }
+    requestAnimationFrame(paso);
+  }
+
+  // ---- confeti ----
+  var cv = $('confeti'), cx = cv.getContext('2d'), parts = [], anim = null;
+  function ajusta() { cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; }
+  addEventListener('resize', ajusta); ajusta();
+  function confeti() {
+    var cols = ['#22d3ee', '#7be8fb', '#ffffff', '#ffd54a', '#3b82f6'], W = cv.width, H = cv.height, d = devicePixelRatio;
+    parts = [];
+    for (var i = 0; i < 220; i++) {
+      var izq = i % 2;
+      parts.push({ x: izq ? 0 : W, y: H * .62, vx: (izq ? 1 : -1) * (6 + Math.random() * 16) * d, vy: -(14 + Math.random() * 22) * d,
+        w: (8 + Math.random() * 10) * d, h: (5 + Math.random() * 8) * d, r: Math.random() * 6, vr: (Math.random() - .5) * .4,
+        c: cols[(Math.random() * cols.length) | 0], life: 0 });
+    }
+    if (anim) cancelAnimationFrame(anim);
+    var t0 = performance.now();
+    (function f(t) {
+      cx.clearRect(0, 0, cv.width, cv.height);
+      var vivo = false;
+      parts.forEach(function (p) {
+        p.vy += .55 * d; p.vx *= .992; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        if (p.y < H + 40 * d) { vivo = true; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); cx.restore(); }
+      });
+      if (vivo && t - t0 < 6000) anim = requestAnimationFrame(f); else cx.clearRect(0, 0, cv.width, cv.height);
+    })(t0);
+  }
+
+  // ---- eventos ----
+  btn.onclick = sortear;
+  addEventListener('keydown', function (e) {
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if ((e.key === ' ' || e.key === 'Enter') && tag !== 'INPUT' && tag !== 'BUTTON') { e.preventDefault(); sortear(); }
+  });
+  $('borrar').onclick = function () { historial = []; save(); pintaHist(); msg('Historial borrado'); };
+  [minI, maxI, norep].forEach(function (el) { el.addEventListener('change', save); });
+  $('ajustes').onclick = function () { $('rango').classList.toggle('oculto'); histEl.classList.toggle('oculto'); };
+
+  load(); pintaHist();
+
+  // Permite abrir el sorteo sin internet después de la primera carga.
+  try { if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {}); } catch (e) {}
+})();
+</script>
+</body>
+</html>
