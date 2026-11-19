@@ -1,9 +1,9 @@
 // Service worker del sorteo: guarda todo para que abra sin internet.
 // Primero intenta la red (para recibir actualizaciones) con un límite de 3 s;
 // si falla o no hay conexión, usa la copia guardada.
-var CACHE = 'sorteo-v1';
+var CACHE = 'sorteo-v2';
 var ASSETS = [
-  './', './index.html', './logo-blanco.png', './fonendo.png', './icon.png',
+  './', './index.html', './logo-blanco.svg', './fonendo.png', './icon.png',
   './fonts/montserrat-latin-500-normal.woff2', './fonts/montserrat-latin-500-italic.woff2',
   './fonts/montserrat-latin-700-normal.woff2', './fonts/montserrat-latin-800-normal.woff2',
   './fonts/anton-latin-400-normal.woff2'
