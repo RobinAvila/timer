@@ -79,6 +79,15 @@
   .estado.err { background:#b91c1c; border-color:#fecaca; }
   .estado.ok { background:#ffd54a; color:var(--deep); border-color:#fff; font-size:max(15px,2.6vh); }
 
+  .reloj { position:absolute; top:-5.6vh; right:-1.2vw; z-index:3; width:11vh; height:11vh; border-radius:50%; background:#fff; color:var(--navy);
+    border:.7vh solid var(--cyan); display:flex; flex-direction:column; align-items:center; justify-content:center; transform:rotate(8deg);
+    box-shadow:0 0 3vh rgba(34,211,238,.6), 0 1vh 2vh rgba(0,0,0,.35); }
+  .reloj b { font-family:"Anton", Impact, sans-serif; font-weight:400; font-size:5.6vh; line-height:1; font-variant-numeric:tabular-nums; }
+  .reloj small { font-size:1.5vh; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+  .reloj.urgente { border-color:#ef4444; color:#b91c1c; animation:latirR .6s ease-in-out infinite; }
+  .reloj.fin { background:#b91c1c; color:#fff; border-color:#fecaca; animation:none; }
+  @keyframes latirR { 0%,100%{ transform:rotate(8deg) scale(1) } 50%{ transform:rotate(8deg) scale(1.14) } }
+
   button { font-family:inherit; touch-action:manipulation; cursor:pointer; }
   .go {
     border:0; border-radius:99px; padding:1.1vh 6vh; font-weight:800; font-size:3.6vh; letter-spacing:.04em; text-transform:uppercase;
@@ -89,14 +98,22 @@
   .go:disabled { animation:none; opacity:.65; cursor:default; }
   @keyframes latir { 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.035) } }
 
+  .acciones { display:flex; flex-wrap:wrap; justify-content:center; gap:1.4vh 2vw; }
+  .acciones .go { font-size:2.9vh; padding:1.1vh 4vh; }
+  .go.ok { background:linear-gradient(180deg,#ffe58a,#ffd54a 60%,#f2b705); box-shadow:0 1vh 0 #a97c00, 0 0 4vh rgba(255,213,74,.55); }
+  .go.sec { animation:none; color:#fff; background:rgba(255,255,255,.14); border:2px solid rgba(255,255,255,.6); box-shadow:0 1vh 0 rgba(0,0,0,.25); }
+  .go.sec.enfasis { color:var(--deep); border-color:transparent; background:linear-gradient(180deg,#8cf0ff,#22d3ee 60%,#12b6dc); box-shadow:0 1vh 0 #0b7fa6, 0 0 4vh rgba(34,211,238,.55); animation:latir 1s ease-in-out infinite; }
+
   .rango { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:1.2vh 1.6vw; margin-top:.4vh;
     background:rgba(4,25,70,.55); border:1px solid rgba(255,255,255,.2); border-radius:2vh; padding:.7vh 1.6vw; font-size:max(15px,2vh); font-weight:700; }
   .rango label { display:flex; align-items:center; gap:.8vw; }
   .rango input[type=number] { width:max(110px,11vh); font:inherit; font-weight:800; font-size:max(16px,2.4vh); text-align:center; color:var(--navy); background:#fff; border:0; border-radius:1.2vh; padding:.7vh 1vh; }
   .rango input[type=checkbox] { width:max(20px,2.6vh); height:max(20px,2.6vh); accent-color:var(--cyan); }
   .mini { font-weight:700; font-size:max(14px,1.9vh); color:#fff; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3); border-radius:99px; padding:.7vh 1.6vh; }
-  .hist { margin:0; min-height:2.6vh; font-size:max(14px,2vh); opacity:.9; font-weight:500; }
+  .hist { margin:0; flex-basis:100%; text-align:center; font-size:max(13px,1.8vh); opacity:.9; font-weight:500; }
+  .hist:empty { display:none; }
   .hist b { font-weight:800; color:var(--cyan2); }
+  .hist s { opacity:.55; }
   .oculto { display:none !important; }
 
   .gear { position:fixed; top:calc(env(safe-area-inset-top) + 1.2vh); right:calc(env(safe-area-inset-right) + 1.2vw); z-index:5; width:max(44px,5.4vh); height:max(44px,5.4vh);
@@ -105,7 +122,18 @@
   .gear.f { right:calc(env(safe-area-inset-right) + 1.2vw + max(44px,5.4vh) + 1.2vh); }
   footer { padding:0 4vw 1.4vh; text-align:center; font-size:max(13px,1.9vh); font-weight:500; line-height:1.35; }
   footer b { font-weight:700; }
-  #confeti { position:fixed; inset:0; width:100%; height:100%; z-index:4; pointer-events:none; }
+  #confeti { position:fixed; inset:0; width:100%; height:100%; z-index:12; pointer-events:none; }
+  .gracias { position:fixed; inset:0; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:2.6vh; padding:4vh 5vw;
+    background:radial-gradient(ellipse at 50% 38%, #2073e1, #06214f 72%); animation:aparece .7s ease-out both; }
+  .gracias img { height:11vh; width:auto; }
+  .gracias h3 { margin:0; font-family:"Anton", Impact, sans-serif; font-weight:400; font-size:min(17vh,9vw); line-height:1.05; letter-spacing:.02em; text-transform:uppercase; transform:skewX(-6deg);
+    background:linear-gradient(180deg,#eafcff 5%, var(--cyan2) 45%, #14b8dd 100%); -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 .7vh 0 rgba(4,40,110,.55)) drop-shadow(0 0 3vh rgba(34,211,238,.5)); }
+  .gracias p { margin:0; font-size:3.6vh; font-weight:700; }
+  .gracias .quote2 { font-size:2.8vh; font-weight:500; font-style:italic; opacity:.92; }
+  .gracias .cerrar { position:absolute; top:calc(env(safe-area-inset-top) + 1.2vh); right:calc(env(safe-area-inset-right) + 1.2vw); width:max(44px,5.4vh); height:max(44px,5.4vh);
+    border-radius:50%; border:1px solid rgba(255,255,255,.3); background:rgba(4,25,70,.4); color:#fff; font-size:max(20px,2.6vh); opacity:.35; }
+  @keyframes aparece { from{ opacity:0; transform:scale(1.04) } to{ opacity:1; transform:none } }
 
   /* Pantallas verticales (iPad en vertical): se apila */
   @media (max-aspect-ratio: 1/1) {
@@ -119,6 +147,8 @@
     .num-card { height:15vh; }
     #num { --fs:min(14vh,30vw); }
     .cardwrap { max-width:94vw; }
+    .reloj { width:9vh; height:9vh; top:-4.6vh; } .reloj b { font-size:4.4vh; }
+    .acciones .go { font-size:2.5vh; padding:.9vh 3vh; }
     .go { font-size:3.3vh; padding:.9vh 5vh; }
     .rango { padding:.5vh 2vw; gap:.5vh 2.5vw; margin-top:.2vh; }
     .hist { min-height:0; }
@@ -152,21 +182,33 @@
 
       <div class="cardwrap">
         <div class="num-card" id="card"><div id="num" aria-live="polite">?</div></div>
+        <div class="reloj oculto" id="reloj" aria-hidden="true"><b id="seg">30</b><small>seg</small></div>
         <p class="estado" id="estado" aria-live="polite"></p>
       </div>
       <button class="go" id="sortear">Sortear</button>
+      <div class="acciones oculto" id="acciones">
+        <button class="go ok" id="confirmar" type="button">✔ Confirmar ganador</button>
+        <button class="go sec" id="resortear" type="button">↻ Volver a sortear</button>
+      </div>
 
       <div class="rango" id="rango">
         <label>Desde <input id="min" type="number" inputmode="numeric" value="1"></label>
         <label>Hasta <input id="max" type="number" inputmode="numeric" value="100"></label>
         <label><input id="norep" type="checkbox" checked> No repetir</label>
         <button class="mini" id="borrar" type="button">Borrar historial</button>
+        <p class="hist" id="hist"></p>
       </div>
-      <p class="hist" id="hist"></p>
     </section>
   </main>
 
   <footer><b>¡Gracias por asistir!</b></footer>
+  <div class="gracias oculto" id="gracias" role="dialog" aria-label="Gracias por asistir">
+    <button class="cerrar" id="cerrar" type="button" aria-label="Cerrar">✕</button>
+    <img src="logo-blanco.png" alt="">
+    <h3>¡Gracias por asistir!</h3>
+    <p>IV Jornada de Medicina Familiar</p>
+    <p class="quote2">“Sembrando salud para envejecer mejor”</p>
+  </div>
   <canvas id="confeti"></canvas>
 
 <script>
@@ -174,7 +216,8 @@
   var $ = function (id) { return document.getElementById(id); };
   var num = $('num'), card = $('card'), estado = $('estado'), btn = $('sortear');
   var minI = $('min'), maxI = $('max'), norep = $('norep'), histEl = $('hist');
-  var historial = [], rodando = false;
+  var historial = [], descartados = [], rodando = false, decidiendo = false, ganadorActual = null, cuenta = null;
+  var reloj = $('reloj'), seg = $('seg'), acciones = $('acciones'), gracias = $('gracias'), btnRe = $('resortear');
 
   // ---- almacenamiento ligero (si el navegador lo permite) ----
   function load() {
@@ -184,10 +227,11 @@
       if (typeof s.max === 'number') maxI.value = s.max;
       if (typeof s.norep === 'boolean') norep.checked = s.norep;
       if (Array.isArray(s.hist)) historial = s.hist.filter(function (n) { return typeof n === 'number'; });
+      if (Array.isArray(s.desc)) descartados = s.desc.filter(function (n) { return typeof n === 'number'; });
     } catch (e) {}
   }
   function save() {
-    try { localStorage.setItem('sorteo-ua', JSON.stringify({ min: +minI.value, max: +maxI.value, norep: norep.checked, hist: historial })); } catch (e) {}
+    try { localStorage.setItem('sorteo-ua', JSON.stringify({ min: +minI.value, max: +maxI.value, norep: norep.checked, hist: historial, desc: descartados })); } catch (e) {}
   }
 
   // ---- azar criptográfico sin sesgo ----
@@ -206,10 +250,10 @@
   }
 
   function elegir(lo, hi) {
-    var count = hi - lo + 1;
-    if (!norep.checked) return lo + rnd(count);
-    var usados = {}, k = 0;
-    historial.forEach(function (v) { if (v >= lo && v <= hi && !usados[v]) { usados[v] = 1; k++; } });
+    var count = hi - lo + 1, usados = {}, k = 0;
+    function marca(v) { if (v >= lo && v <= hi && !usados[v]) { usados[v] = 1; k++; } }
+    descartados.forEach(marca);                    // un número descartado nunca vuelve a salir
+    if (norep.checked) historial.forEach(marca);   // y, con "No repetir", tampoco los que ya salieron
     if (k >= count) return null;
     if (k * 2 < count) { var n; do { n = lo + rnd(count); } while (usados[n]); return n; }
     var pool = []; for (var i = lo; i <= hi; i++) if (!usados[i]) pool.push(i);
@@ -224,12 +268,12 @@
   function msg(t, cls) { estado.textContent = t; estado.className = 'estado' + (cls ? ' ' + cls : ''); }
   function pintaHist() {
     if (!historial.length) { histEl.textContent = ''; return; }
-    var ult = historial.slice(-12).reverse().map(function (n) { return '<b>' + n + '</b>'; }).join(' · ');
+    var ult = historial.slice(-10).reverse().map(function (n) { return descartados.indexOf(n) >= 0 ? '<s>' + n + '</s>' : '<b>' + n + '</b>'; }).join(' · ');
     histEl.innerHTML = 'Ya salieron: ' + ult;
   }
 
   function sortear() {
-    if (rodando) return;
+    if (rodando || decidiendo) return;
     var r = rango();
     if (r.error) { msg(r.error, 'err'); return; }
     var ganador = elegir(r.lo, r.hi);
@@ -254,9 +298,50 @@
       card.classList.remove('girando'); void card.offsetWidth; card.classList.add('ganador');
       historial.push(ganador); save(); pintaHist();
       msg('¡Número ganador!', 'ok');
-      confeti(); rodando = false; btn.disabled = false; btn.textContent = 'Sortear de nuevo';
+      confeti(); rodando = false; btn.disabled = false;
+      ganadorActual = ganador; decidiendo = true;
+      btn.classList.add('oculto'); acciones.classList.remove('oculto'); iniciarCuenta(); ajustar();
     }
     requestAnimationFrame(paso);
+  }
+
+  // ---- decisión: cuenta de 30 s, confirmar o volver a sortear ----
+  function iniciarCuenta() {
+    var fin = Date.now() + 30000;
+    detenerCuenta();
+    reloj.classList.remove('oculto', 'urgente', 'fin'); seg.textContent = '30';
+    cuenta = setInterval(function () {
+      var r = Math.ceil((fin - Date.now()) / 1000);
+      if (r <= 0) {
+        clearInterval(cuenta); cuenta = null;
+        seg.textContent = '0'; reloj.classList.remove('urgente'); reloj.classList.add('fin');
+        btnRe.classList.add('enfasis'); msg('Se acabó el tiempo · puedes volver a sortear', 'err');
+        return;
+      }
+      seg.textContent = r; reloj.classList.toggle('urgente', r <= 10);
+    }, 250);
+  }
+  function detenerCuenta() {
+    if (cuenta) { clearInterval(cuenta); cuenta = null; }
+    reloj.classList.add('oculto'); reloj.classList.remove('urgente', 'fin'); btnRe.classList.remove('enfasis');
+  }
+  function volverASortear() {
+    if (!decidiendo || rodando) return;
+    descartados.push(ganadorActual); decidiendo = false; ganadorActual = null;
+    detenerCuenta(); acciones.classList.add('oculto'); btn.classList.remove('oculto');
+    save(); pintaHist(); ajustar(); sortear();
+  }
+  function confirmar() {
+    if (!decidiendo || rodando) return;
+    decidiendo = false; detenerCuenta(); acciones.classList.add('oculto');
+    gracias.classList.remove('oculto'); confeti();
+  }
+  function cerrarGracias() {
+    if (gracias.classList.contains('oculto')) return;
+    gracias.classList.add('oculto');
+    descartados = []; ganadorActual = null; save(); pintaHist();
+    card.classList.remove('ganador'); mostrar('?'); msg('');
+    btn.classList.remove('oculto'); btn.textContent = 'Sortear'; ajustar();
   }
 
   // ---- confeti ----
@@ -289,11 +374,13 @@
   btn.onclick = sortear;
   addEventListener('keydown', function (e) {
     var tag = (document.activeElement && document.activeElement.tagName) || '';
-    if ((e.key === ' ' || e.key === 'Enter') && tag !== 'INPUT' && tag !== 'BUTTON') { e.preventDefault(); sortear(); }
+    if (e.key === 'Escape') { cerrarGracias(); return; }
+    if ((e.key === ' ' || e.key === 'Enter') && tag !== 'INPUT' && tag !== 'BUTTON' && !decidiendo && gracias.classList.contains('oculto')) { e.preventDefault(); sortear(); }
   });
-  $('borrar').onclick = function () { historial = []; save(); pintaHist(); msg('Historial borrado'); };
+  btnRe.onclick = volverASortear; $('confirmar').onclick = confirmar; $('cerrar').onclick = cerrarGracias;
+  $('borrar').onclick = function () { historial = []; descartados = []; save(); pintaHist(); msg('Historial borrado'); };
   [minI, maxI, norep].forEach(function (el) { el.addEventListener('change', save); });
-  $('ajustes').onclick = function () { $('rango').classList.toggle('oculto'); histEl.classList.toggle('oculto'); };
+  $('ajustes').onclick = function () { $('rango').classList.toggle('oculto'); };
 
   // Ajuste automático: si el contenido no cabe en la pantalla, se reduce un poco para que no se corte.
   var main = document.querySelector('main'), col = document.querySelector('.sorteo'), prem = document.querySelector('.premio');
